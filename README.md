@@ -285,7 +285,7 @@ Answer the following questions in your own words and add your answers directly b
 
 **Question 1.1:** Why is `grep -v "^timestamp"` needed in the shell solution even though the files are already filtered with `grep -h "T02"`? Could this step be omitted? Justify your answer.
 
-> *Your answer:* Each CSV file has a header line (timestamp,sensor_id,...). That header doesn't contain "T02" so the first grep won't catch it — but it also won't remove it. Without -v "^timestamp" you'd get 30 header lines mixed into your output. So no, you can't skip it.
+> *Your answer:* Each CSV file has a header line (timestamp,sensor_id,...). That header doesn't contain "T02" so the first grep won't catch it  but it also won't remove it. Without -v "^timestamp" you'd get 30 header lines mixed into your output. So no, you can't skip it.
 
 **Question 1.2:** The shell solution uses `sensordata/T02_*.csv` as a file pattern, even though `grep -h "T02"` already filters for `T02`. Why is the file pattern still important — and what would happen if you used `sensordata/*.csv` instead?
 
@@ -293,7 +293,7 @@ Answer the following questions in your own words and add your answers directly b
 
 **Question 1.3:** The SQL solution uses `ORDER BY timestamp` even though `timestamp` is stored as type `TEXT`. Why does chronological sorting still work correctly? Under what condition would it fail?
 
-> *Your answer:* It works because the format is YYYY-MM-DD... — year first, then month, then day. That means alphabetical order and chronological order happen to be the same thing. It would break if dates were stored differently, like 01-03-2026 (European style), where alphabetical sorting would give completely wrong results.
+> *Your answer:* It works because the format is YYYY-MM-DD...  year first, then month, then day. That means alphabetical order and chronological order happen to be the same thing. It would break if dates were stored differently, like 01-03-2026 (European style), where alphabetical sorting would give completely wrong results.
 
 ---
 
