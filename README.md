@@ -62,6 +62,9 @@ If any of the above commands return `command not found`, resolve the installatio
 > **Screenshot 1:** Take a screenshot of your terminal showing all four successful version checks and insert it here.
 >
 > `[insert screenshot]`
+> <img width="737" height="495" alt="Erste Konfig" src="https://github.com/user-attachments/assets/868e0110-06f9-41f4-93bb-85b9765fcef9" />
+
+
 
 ---
 
@@ -110,6 +113,8 @@ cat sensordata/T01_2026-03-01.csv
 > **Screenshot 2:** Take a screenshot showing the output of `ls sensordata/ | head -8` and the contents of one CSV file, and insert it here.
 >
 > `[insert screenshot]`
+> <img width="656" height="611" alt="Setup Sample Dataset" src="https://github.com/user-attachments/assets/d14f6de0-9139-41fe-b761-ed91bfe909a8" />
+
 
 ### What does the script do, line by line?
 
@@ -199,7 +204,8 @@ echo "Import complete."
 
 > **Screenshot 3:** Take a screenshot showing the successful execution of the import script and the result of the `COUNT(*)` query, and insert it here.
 >
-> `[insert screenshot]`
+> <img width="553" height="345" alt="SQLite Importing" src="https://github.com/user-attachments/assets/719aaf24-3e13-432c-8acb-c3bbe9aadeee" />
+
 
 ---
 
@@ -269,6 +275,9 @@ EOF
 > **Screenshot 4:** Take a screenshot showing the output of the Task 1 SQLite query (the first and last few rows are sufficient), and insert it here.
 >
 > `[insert screenshot]`
+> <img width="361" height="490" alt="SQLite Printing 1" src="https://github.com/user-attachments/assets/4c5e5391-f793-4ce8-9210-70be81018ba1" />
+<img width="265" height="575" alt="SQLite Printing 2" src="https://github.com/user-attachments/assets/cc32e235-eb93-4d88-b12a-266d0b00dae2" />
+
 
 ### Questions for Task 1
 
@@ -276,15 +285,15 @@ Answer the following questions in your own words and add your answers directly b
 
 **Question 1.1:** Why is `grep -v "^timestamp"` needed in the shell solution even though the files are already filtered with `grep -h "T02"`? Could this step be omitted? Justify your answer.
 
-> *Your answer:*
+> *Your answer:* Each CSV file has a header line (timestamp,sensor_id,...). That header doesn't contain "T02" so the first grep won't catch it — but it also won't remove it. Without -v "^timestamp" you'd get 30 header lines mixed into your output. So no, you can't skip it.
 
 **Question 1.2:** The shell solution uses `sensordata/T02_*.csv` as a file pattern, even though `grep -h "T02"` already filters for `T02`. Why is the file pattern still important — and what would happen if you used `sensordata/*.csv` instead?
 
-> *Your answer:*
+> *Your answer:* The file pattern limits which files get opened in the first place. If you used sensordata/*.csv, you'd search all 120 files unnecessarily, and a T01 file could theoretically have "T02" somewhere in it and sneak into the results. The pattern is your first filter; grep is just a safety net.
 
 **Question 1.3:** The SQL solution uses `ORDER BY timestamp` even though `timestamp` is stored as type `TEXT`. Why does chronological sorting still work correctly? Under what condition would it fail?
 
-> *Your answer:*
+> *Your answer:* It works because the format is YYYY-MM-DD... — year first, then month, then day. That means alphabetical order and chronological order happen to be the same thing. It would break if dates were stored differently, like 01-03-2026 (European style), where alphabetical sorting would give completely wrong results.
 
 ---
 
@@ -357,21 +366,29 @@ EOF
 > **Screenshot 5:** Take a screenshot showing the output of the Task 2 SQLite query and insert it here.
 >
 > `[insert screenshot]`
+<img width="403" height="575" alt="SQLite Task 2 Printing 1" src="https://github.com/user-attachments/assets/282fbe5e-9690-4089-996a-49089dcbbd15" />
+<img width="300" height="583" alt="SQLite Task 2 Printing 2" src="https://github.com/user-attachments/assets/e2fc8d54-9688-4c67-ae49-62d156169990" />
+
 
 ### Questions for Task 2
 
 **Question 2.1:** The shell solution filters by date using `grep -rh "2026-03"`. What problem could arise if a sensor value happened to contain the string `2026-03` — for example as part of an error note? How does the SQL solution handle this problem?
 
-> *Your answer:*
+> *Your answer:* grep "2026-03" matches that string anywhere in a line — not just in the timestamp. An error note like "fault since 2026-03" in the value field would get picked up too. SQL avoids this because timestamp LIKE '2026-03-%' only checks the timestamp column, nothing else.
 
 **Question 2.2:** The SQL solution uses `timestamp LIKE '2026-03-%'` for the date filter instead of a proper date function. Name one advantage and one disadvantage of this approach.
 
-> *Your answer:*
+> *Your answer:* 
+Advantage: simple, no special functions needed, works everywhere.
+Disadvantage: fragile : if the timestamp format changes even slightly it could break silently.
 
 **Question 2.3:** The SQL solution returns results sorted by `ORDER BY value_celsius DESC`. The shell solution does not include this sorting. Extend the shell solution to also sort by temperature in descending order and write your command here.
 
 > *Your answer (extended shell command):*
-
+grep -rh "2026-03" sensordata/*.csv \
+  | grep -v "^timestamp" \
+  | awk -F',' '$4 > 25.0 {print $1","$2","$4}' \
+  | sort -t',' -k3 -rn
 ---
 
 ## Task 3 — Per-sensor statistics: min, max, and average temperature
@@ -458,20 +475,31 @@ EOF
 > **Screenshot 6:** Take a screenshot showing the output of the Task 3 SQLite query — the four rows with sensor statistics — and insert it here.
 >
 > `[insert screenshot]`
+<img width="552" height="307" alt="Final Task Screenshot 7" src="https://github.com/user-attachments/assets/91be571f-a140-4c10-b12d-7a44eeb2b991" />
+<img width="373" height="216" alt="SQLite Task 3" src="https://github.com/user-attachments/assets/7b090967-b2f9-490c-9042-0f96278d8f78" />
 
 ### Questions for Task 3
 
 **Question 3.1:** The `awk` solution initialises `min=9999` and `max=-9999`. What would happen if all temperature values in the dataset were greater than 9999? How could the initialisation be made more robust?
 
-> *Your answer:*
+> *Your answer:* 
+If real temperatures were all above 9999, min would never update and stay at 9999 forever , a completely wrong result. Better approach: initialize from the first actual data row instead of a hardcoded number.
 
 **Question 3.2:** The SQL solution uses `GROUP BY sensor_id`. What would the query return *without* this clause — i.e. if you ran `SELECT sensor_id, MIN(value_celsius), MAX(value_celsius), ROUND(AVG(value_celsius), 1) FROM readings`? Try it and describe the result.
 
-> *Your answer:*
+> *Your answer:* Without GROUP BY you get a single row covering all 360 readings combined, with an arbitrary sensor_id. All per-sensor breakdown is lost.
 
 **Question 3.3:** Extend the SQL query with an additional column `COUNT(*) AS num_readings` that shows the total number of measurements for each sensor. Write the complete extended query here.
 
 > *Your answer (extended SQL query):*
+> SELECT sensor_id,
+       MIN(value_celsius)           AS min_temp,
+       MAX(value_celsius)           AS max_temp,
+       ROUND(AVG(value_celsius), 1) AS avg_temp,
+       COUNT(*)                     AS num_readings
+FROM   readings
+GROUP  BY sensor_id
+ORDER  BY sensor_id;
 
 ---
 
@@ -482,26 +510,28 @@ After completing all three tasks, answer the following questions:
 **Question A — Writing effort:**
 Which approach was easier to write correctly on the first try? Explain which properties of each language contributed to this.
 
-> *Your answer:*
+> *Your answer:* Writing effort SQL, easily. It reads like plain English — you just say what you want and it figures out the rest. Shell forces you to think through every step: which files, which flags, how to pipe things together. One typo breaks the whole thing
 
 **Question B — Extensibility:**
 What would you need to change in the shell solution if a fifth sensor `T05` were added? What about the SQL solution? Which approach scales better — and why?
 
-> *Your answer:*
+> *Your answer:*  Extensibility Shell: you'd need to hunt down every hardcoded filename pattern and update it manually. SQL: you just load the T05 data in and all queries pick it up automatically. No changes needed. SQL wins here clearly.
 
 **Question C — Performance:**
 The shell solution reads files from disk on every invocation. A database can cache frequently queried data in memory. What does this mean for performance with 10 000 sensors and multi-year measurement data?
 
-> *Your answer:*
+> *Your answer:* Performance Shell re-reads files from disk every single time. With 10,000 sensors and years of data that gets very slow very fast. A database keeps hot data in memory and uses indexes to jump straight to what you need . Same query runs in milliseconds instead of minutes.
 
 **Question D — Declarative vs. imperative:**
 SQL is called a *declarative* language: you describe *what* you want, not *how* to compute it. Bash/awk, by contrast, are *imperative*: you write step by step how the result is to be computed. In which of the three tasks did you feel this difference most clearly? Justify your choice.
 
-> *Your answer:*
+> *Your answer:* Task 3 showed this most clearly. In SQL it's four lines — just ask for min, max, avg grouped by sensor. In awk you had to manually initialize variables, loop through every line, compare values, accumulate sums, then divide at the end. You wrote the whole algorithm yourself. SQL just handled it internally.
 
 > **Screenshot 7:** Take a final screenshot of your terminal showing the SQLite prompt with a query of your own invention on the `readings` table — one you came up with yourself that goes beyond the tasks above — and insert it here.
 >
 > `[insert screenshot]`
+> <img width="552" height="307" alt="Final Task Screenshot 7" src="https://github.com/user-attachments/assets/e0b9e4ad-5fff-446c-824c-f40aeb6e15d0" />
+
 
 ---
 
