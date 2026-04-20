@@ -372,9 +372,9 @@ EOF
 
 ### Questions for Task 2
 
-**Question 2.1:** The shell solution filters by date using `grep -rh "2026-03"`. What problem could arise if a sensor value happened to contain the string `2026-03` — for example as part of an error note? How does the SQL solution handle this problem?
+**Question 2.1:** The shell solution filters by date using `grep -rh "2026-03"`. What problem could arise if a sensor value happened to contain the string `2026-03`  for example as part of an error note? How does the SQL solution handle this problem?
 
-> *Your answer:* grep "2026-03" matches that string anywhere in a line — not just in the timestamp. An error note like "fault since 2026-03" in the value field would get picked up too. SQL avoids this because timestamp LIKE '2026-03-%' only checks the timestamp column, nothing else.
+> *Your answer:* grep "2026-03" matches that string anywhere in a line not just in the timestamp. An error note like "fault since 2026-03" in the value field would get picked up too. SQL avoids this because timestamp LIKE '2026-03-%' only checks the timestamp column, nothing else.
 
 **Question 2.2:** The SQL solution uses `timestamp LIKE '2026-03-%'` for the date filter instead of a proper date function. Name one advantage and one disadvantage of this approach.
 
